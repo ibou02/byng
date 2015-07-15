@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Byng</title>
+    <link href="http://www.bing.com/s/a/bing_p.ico" rel="icon">
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/home.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="js/handlebars-v1.3.0.js"></script>
+	<script id="entry-template" type="text/x-handlebars-template">
+	
+	<ul class="media-list">
+		{{#each results}}
+		<li class="media">
+			<div class="media-body">
+			<h4 class="media-heading"><a href="{{url}}">{{title}}</a></h4>
+			<img class="favicon" src="{{favicon}}">&nbsp;<a class="link text-primary" href="{{url}}">{{url}}</a>
+			</div>
+		</li>
+        {{else}}
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">No results found.</h4>
+                </div>
+            </li>
+		{{/each}}
+	</ul>
+	
+	</script>
+	
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3" id="title">
+                <h1 id="byng">Byn<span class="text-primary">g</span></h1>
+            </div>
+            <div class="col-md-6 col-md-offset-3" id="search-box">
+                <form id="js-search" class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Query" autofocus>
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                        </span>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label for="limit">Limit</label>
+                        <input type="text" name="limit" class="form-control" placeholder="Results" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="page">Page</label>
+                        <input type="text" name="page" class="form-control" placeholder="Page" value="1">
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-12 col-md-offset-0" id="results">
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    $(function () {
+		source = $("#entry-template").html();
+		template = Handlebars.compile(source);
+        $("#js-search").on('submit', function(e) {
+            e.preventDefault()
+            value = $("input[name=query]").val();
+            limit = $("input[name=limit]").val();
+            page = $("input[name=page]").val();
+            $.getJSON("http://query.byng/query?query=" + value + "&page=" + page + "&limit=" + limit, function(results) {
+                    $("#results").html(template({results: results}));
+                }
+            );
+        });
+    })
+    
+    </script>
+
+
+	
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+</body>
+</html>

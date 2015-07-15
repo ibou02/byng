@@ -1,0 +1,43 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+
+PROJECT (byng-api)
+
+SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+
+find_package ( cppnetlib 0.11.0)
+
+FIND_PACKAGE (Boost 1.54 REQUIRED system)
+
+FIND_LIBRARY(AMQP_LIBRARY NAMES SimpleAmqpClient)
+
+find_library(PQXX_LIBRARIES NAMES pqxx)
+find_library(PQ_LIBRARIES NAMES pq)
+
+INCLUDE_DIRECTORIES (
+  ${Boost_INCLUDE_DIR}
+  ${CPPNETLIB_INCLUDE_DIRS}
+)
+
+FILE (
+  GLOB_RECURSE
+  source_files
+  src/*
+)
+
+ADD_EXECUTABLE (
+  byng-api
+  ${source_files}
+)
+
+TARGET_LINK_LIBRARIES (
+  ${PROJECT_NAME}
+  ${Boost_LIBRARIES}
+  ${CPPNETLIB_LIBRARIES}
+  ${AMQP_LIBRARY}
+  ${PQXX_LIBRARIES}
+  ${PQ_LIBRARIES}
+)

@@ -1,0 +1,150 @@
+---
+- hosts: all
+  tasks:
+    - name: update apt
+      apt: update_cache=yes cache_valid_time=3600
+    - name: install packages
+      action: apt pkg={{item}} state=present
+      with_items:
+        - git
+        - mercurial
+        - build-essential
+        - golang
+        - nginx
+        - tar
+        - python
+        - python-dev
+        - libevent-dev
+        - python-pip
+        - liblzma-dev
+        - docker.io
+        - postgresql-client-9.3
+    - name: symlink docker
+      file: src=/usr/bin/docker.io dest=/usr/local/bin/docker state=link
+
+    - name: test for swap
+      stat: path=/swapfile
+      register: swap_exist
+    - name: add swap
+      shell: dd if=/dev/zero of=/swapfile bs=1024 count=1024k
+      when: swap_exist.stat.exists == False
+    - name: create swap
+      shell: mkswap /swapfile
+      when: swap_exist.stat.exists == False
+    - name: enable swap
+      shell: swapon /swapfile
+
+    - name: extract etcd
+      unarchive: src=files/etcd-v0.4.3-linux-amd64.tar.gz dest=/tmp/
+    - name: install etcd
+      file: src=/tmp/etcd-v0.4.3-linux-amd64/etcd dest=/usr/bin
+    - name: install etcdctl
+      file: src=/tmp/etcd-v0.4.3-linux-amd64/etcdctl dest=/usr/bin
+    - name: add etcd upstart
+      copy: src=config/etcd.upstart dest=/etc/init/etcd.conf
+    - name: start upstart
+      service: name=etcd state=started
+
+    - name: extract fleet
+      unarchive: src=files/fleet-v0.5.0-linux-amd64.tar.gz dest=/tmp/
+    - name: install fleet
+      shell: cp /tmp/fleet-v0.5.0-linux-amd64/fleetctl /usr/bin
+
+    - name: clone skydns
+      git: repo=https://github.com/skynetservices/skydns.git dest=/tmp/skydns
+    - name: build skydns
+      shell: "cd /tmp/skydns && GOPATH=$HOME/.go go get -d -v ./... && GOPATH=$HOME/.go go build -v ./..."
+    - name: install skydns
+      file: src=/tmp/skydns/skydns dest=/usr/bin
+    - name: initial skydns setup
+      shell: etcdctl set skydns/config '{"domain": "byng.", "dns_addr": "0.0.0.0:53", "nameservers":["8.8.8.8:53"]}'
+    - name: add skydns upstart
+      copy: src=config/skydns.upstart dest=/etc/init/skydns.conf
+    - name: update dns
+      copy: src=config/resolv.head dest=/etc/resolvconf/resolv.conf.d/head
+    - name: update resolvconf
+      shell: resolvconf -u
+    - name: start dns
+      service: name=skydns state=started
+
+    - name: delete default nginx conf
+      file: path=/etc/nginx/sites-enabled/default state=absent
+    - name: add registry nginx configuration
+      copy: src=config/registry.nginx dest=/etc/nginx/sites-available/registry.conf
+    - name: link registry nginx
+      file: src=/etc/nginx/sites-available/registry.conf dest=/etc/nginx/sites-enabled/registry.conf state=link
+    - name: install registry
+      pip: name=docker-registry
+    - name: copy registry config
+      copy: src=config/registry.conf dest=/usr/local/lib/python2.7/dist-packages/docker_registry/lib/../../config/config.yml
+    - name: add registry upstart
+      copy: src=config/registry.upstart dest=/etc/init/registry.conf
+    - name: start registry
+      service: name=registry state=started
+    - name: add registry dns
+      shell: etcdctl set skydns/byng/registry '{"host": "172.17.8.254"}'
+
+    - name: install rabbitmq
+      apt: pkg=rabbitmq-server state=present
+    - name: enable rabbitmq admin
+      shell: rabbitmq-plugins enable rabbitmq_management
+    - name: restart rabbitmq
+      shell: service rabbitmq-server restart
+    - name: add rabbit dns
+      shell: etcdctl set skydns/byng/rabbit '{"host": "172.17.8.254"}'
+
+    - name: install pgpool
+      apt: pkg=pgpool2 state=present
+    - name: install pgpool config
+      copy: src=config/pgpool.conf dest=/etc/pgpool2/pgpool.conf
+    - name: add pool dns
+      shell: etcdctl set /skydns/byng/pool/db '{"host": "172.17.8.254"}'
+    - name: restart pgpool
+      shell: service pgpool2 restart
+
+    - name: reload dns
+      shell: "service skydns stop"
+
+    - name: copy byng-web
+      copy: src=src/web dest=/tmp/
+    - name: build byng-web
+      shell: chdir=/tmp/web docker build -t registry.byng/web .
+    - name: push byng-web
+      shell: docker push registry.byng/web
+
+    - name: copy byng-api
+      copy: src=src/api dest=/tmp/
+    - name: build byng-api
+      shell: chdir=/tmp/api docker build -t registry.byng/api .
+    - name: push byng-api
+      shell: docker push registry.byng/api
+
+    - name: copy byng-db
+      copy: src=src/db dest=/tmp/
+    - name: build byng-db
+      shell: chdir=/tmp/db docker build -t registry.byng/db .
+    - name: push byng-db
+      shell: docker push registry.byng/db
+
+    - name: copy byng-crawler
+      copy: src=src/crawler dest=/tmp/
+    - name: build byng-crawler
+      shell: chdir=/tmp/crawler docker build -t registry.byng/crawler .
+    - name: push byng-crawler
+      shell: docker push registry.byng/crawler
+
+    - name: copy vagrant key to use
+      copy: src=vagrant dest=/vagrant.key
+
+    - name: copy bashrc
+      copy: src=config/bashrc dest=/home/vagrant/.bashrc
+
+    - name: copy ssh config
+      copy: src=config/ssh.conf dest=/home/vagrant/.ssh/config mode=600
+
+    - name: copy ssh config
+      copy: src=config/ssh.conf dest=/root/.fleetctl/config mode=600
+
+
+
+      

@@ -1,0 +1,38 @@
+#title {
+	text-align: center;
+	margin-top: 50px;
+}
+	
+#byng{
+font-family: 'Open Sans', sans-serif;
+}
+	
+#search-box {
+	margin-top: 20px;
+	margin-bottom: 50px;
+}
+
+.link{
+}
+
+.media{
+	border-radius: 5px;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.media:hover{
+	background-color:#f7f7f7;
+}
+
+.favicon{
+	width: 16px;
+    height: 16px;
+}
+
+.media-body{
+}
+
+.media-list{
+
+}

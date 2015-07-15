@@ -1,0 +1,6 @@
+description "docker registry service registry"
+
+start on started
+stop on shutdown
+
+exec gunicorn --access-logfile - --debug --env STANDALONE=true --env DISABLE_TOKEN_AUTH=true -k gevent -b 127.0.0.1:5000 -w 1 docker_registry.wsgi:application

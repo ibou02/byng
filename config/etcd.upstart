@@ -1,0 +1,6 @@
+description "etcd service registry"
+
+start on started
+stop on shutdown
+
+exec /usr/bin/etcd -name master --peer-addr 172.17.8.254:7001 --addr 172.17.8.254:4001 --peers 172.17.8.101:7001,172.17.8.102:7001,172.17.8.103:7001
