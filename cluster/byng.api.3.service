@@ -1,0 +1,11 @@
+[Unit]
+Description=Byng API
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/bin/bash -c '/usr/bin/docker run -i -t -p 8090:8080 -e "DBNAME=byng" -e "DBUSER=byng" -e "DBPASSWORD=byng" -e "DBHOST=172.17.8.254" -e "DBPORT=5433" -e "MBHOST=172.17.8.254" registry.byng/api byng-api'
+ExecStartPost=/usr/bin/etcdctl set /skydns/byng/api/%H '{\"host\": \"172.17.8.103\", \"port\": 8080}'
+
+[X-Fleet]
+X-Conflicts=byng.api.*

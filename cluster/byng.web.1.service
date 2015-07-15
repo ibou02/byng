@@ -1,0 +1,11 @@
+[Unit]
+Description=Byng Web
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/bin/bash -c '/usr/bin/docker run -p 8080:8080 registry.byng/web static /byng-web/public'
+ExecStartPost=/usr/bin/etcdctl set /skydns/byng/web/%H '{\"host\": \"172.17.8.101\", \"port\": 8080}'
+
+[X-Fleet]
+X-Conflicts=byng.web.*

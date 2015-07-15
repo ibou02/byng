@@ -1,0 +1,11 @@
+[Unit]
+Description=Byng Crawler
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/bin/bash -c '/usr/bin/docker run -e "DBNAME=byng" -e "DBUSER=byng" -e "DBPASSWORD=byng" -e "DBHOST=172.17.8.254" -e "DBPORT=5433" -e "MQHOST=172.17.8.254" registry.byng/crawler byng-crawler'
+ExecStartPost=/usr/bin/etcdctl set /skydns/byng/crawler/%H '{\"host\": \"172.17.8.103\", \"port\": 8080}'
+
+[X-Fleet]
+X-Conflicts=byng.crawler.*
