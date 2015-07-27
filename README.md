@@ -48,15 +48,15 @@ And here you are with a consistent database
 
 #Let's launch the API now
 
-- Always in the VM
+-Always in the VM
     fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.api*
-- Then the web servers 
+-Then the web servers 
    fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.web.*
-- Then the crawler
+-Then the crawler
     fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.crawler.*
 
 #And that's all
------------------------------------------------------------------------
+
  If all gone right ,the master server should have compiled the different Byng elements and sent them to the Docker registry.The cluster should have received the launch instructions and is ready to work.
 
 If your DNS have been correctly configured,you should be able to access to the search interface at http://search.byng address.
