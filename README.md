@@ -1,6 +1,6 @@
 # Byng
 
-Byng is a search engine made with c++
+Byng is a search engine made with C++
 
 # Deployment instructions
 Byng deployment requires Vagrant ,Virtualbox et Ansible.It's also recommended to deploy Bing in an Unix environment.
