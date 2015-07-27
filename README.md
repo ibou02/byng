@@ -49,11 +49,11 @@ And here you are with a consistent database
 #Let's launch the API now
 
 - Always in the VM
-  fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.api*
+ * fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.api*
 # Then the web servers 
- fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.web.*
+  * fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.web.*
 # Then the crawler
-  fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster         byng.crawler.*
+  * fleectl --tunnel 172.17.8.101:22 start /vagrant/cluster/byng.crawler.*
 
 #And that's all
 -----------------------------------------------------------------------
