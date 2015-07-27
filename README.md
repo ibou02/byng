@@ -19,7 +19,7 @@ In few minutes, 3 virtual machines will be created with CoreOS
 # Master server deployment
 The master server is an Ubuntu 14.04 LTS with Ansible.So, there's almost nothing to configure besides the DNS server of the 'host'  machine
 
-- Back to the project racine byng-master
+- Back to the project racine byng-master:
    vagrant up
 
 The master server provision can take a certain time depending on the internet connexion quality and the server power
@@ -31,9 +31,9 @@ Note: if ever,the server provisioning gets an error, restart with "vagrant provi
 #Containers' launcehing
 Now that all servers are ready ,it's time to launch the database.This command will launch 3 database conatainers and save them in the pool:
 
-- Always in the folder
+- Always in the folder:
   vagrant ssh
-- We are now in the master server
+- We are now in the master server:
   ssh-add /vagrant.key
   fleectl ----tunnel 172.17.8.101:22 start /vagrant/cluster/by
   ng.db.*
@@ -41,7 +41,7 @@ Now that all servers are ready ,it's time to launch the database.This command wi
 - Creating the database:
   sudo -u postgres createuser byng -p 5433
   sudo -u postgres createdb byng -o byng -p 5433
-- Database importation 
+- Database importation :
   sudo -u postgres psql -p 5433 byng < /vagrant/config/schema.sql
 
 And here you are with a consistent database
